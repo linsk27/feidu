@@ -1,4 +1,5 @@
 import * as echarts from "echarts";
+import img from "/assets/imgs/fy.png";
 export const useAnallyCircle = () => {
   const chartOption = {
     series: [
@@ -57,9 +58,41 @@ export const useAnallyCircle = () => {
       },
       formatter: "{b}: {d}%",
     },
+    graphic: [
+      {
+        type: "group",
+        left: "15%", // 与饼图的center一致
+        top: "24%", // 与饼图的center一致
+        z: 10,
+        children: [
+          {
+            type: "text",
+            left: "center",
+            top: 0, // 文字相对于group的顶部
+            style: {
+              text: "中心文字",
+              textAlign: "center",
+              fill: "#29a5a9",
+              fontSize: 12,
+            },
+          },
+          {
+            type: "image",
+            left: "center",
+            top: 20, // 图片在文字下方一定距离
+            style: {
+              image: img, // 替换为你的图片路径
+              width: 30,
+              fill: "#fff",
+              height: 30,
+            },
+          },
+        ],
+      },
+    ],
     legend: {
       orient: "vertical",
-      right: "15%",
+      right: "30%",
       top: "0",
       itemWidth: 30,
       itemHeight: 10,
@@ -71,8 +104,8 @@ export const useAnallyCircle = () => {
     series: [
       {
         type: "pie",
-        radius: ["45%", "60%"],
-        center: ["30%", "35%"],
+        radius: ["50%", "69%"],
+        center: ["20%", "40%"],
         avoidLabelOverlap: false,
         itemStyle: {
           borderWidth: 4,
@@ -86,53 +119,16 @@ export const useAnallyCircle = () => {
           },
         },
         data: [
-          {
-            value: 35,
-            name: "天棚主机",
-            itemStyle: {
-              color: "#3951f2",
-            },
-          },
-          {
-            value: 15,
-            name: "天棚水泵",
-            itemStyle: {
-              color: "#1bcb9c",
-            },
-          },
-          {
-            value: 20,
-            name: "新风主机",
-            itemStyle: {
-              color: "#3bdad1",
-            },
-          },
-          {
-            value: 10,
-            name: "新风水泵",
-            itemStyle: {
-              color: "#6060ff",
-            },
-          },
-          {
-            value: 5,
-            name: "地源水泵",
-            itemStyle: {
-              color: "#08b5f2",
-            },
-          },
-          {
-            value: 15,
-            name: "冷却水泵",
-            itemStyle: {
-              color: "#c304ff",
-            },
-          },
+          { value: 35, name: "天棚主机", itemStyle: { color: "#3951f2" } },
+          { value: 15, name: "天棚水泵", itemStyle: { color: "#1bcb9c" } },
+          { value: 20, name: "新风主机", itemStyle: { color: "#3bdad1" } },
+          { value: 10, name: "新风水泵", itemStyle: { color: "#6060ff" } },
+          { value: 5, name: "地源水泵", itemStyle: { color: "#08b5f2" } },
+          { value: 15, name: "冷却水泵", itemStyle: { color: "#c304ff" } },
         ],
       },
     ],
   };
-
   return {
     chartOption,
     payOption,
@@ -140,6 +136,73 @@ export const useAnallyCircle = () => {
 };
 // 进度条配置
 export const useBarProgress = () => {
+  const payBarOption = {
+    graphic: [
+      // 低（左侧文字）
+      {
+        type: "text",
+        left: 10,
+        top: "middle",
+        style: {
+          text: "低",
+          fill: "#9eb2e6",
+          fontSize: 14,
+        },
+      },
+      // 能效等级框（6个矩形）
+      ...Array.from({ length: 6 }).map((_, i) => ({
+        type: "rect",
+        left: 40 + i * 50,
+        top: "middle",
+        shape: {
+          width: 35,
+          height: 17,
+        },
+        style: {
+          stroke: "#646cff",
+          lineWidth: 1,
+        },
+      })),
+      // 高（右侧文字）
+      {
+        type: "text",
+        left: 340,
+        top: "middle",
+        style: {
+          text: "高",
+          fill: "#9eb2e6",
+          fontSize: 14,
+        },
+      },
+      // 右侧按钮 "一级"
+      {
+        type: "rect",
+        left: 370,
+        top: "middle",
+        shape: {
+          width: 45,
+          height: 20,
+        },
+        style: {
+          fill: "#08b4f2",
+          stroke: "#1e90ff",
+          lineWidth: 2,
+        },
+      },
+      {
+        type: "text",
+        left: 380,
+        top: "middle",
+        style: {
+          text: "一级",
+          fill: "#ffffff",
+          fontSize: 14,
+          textAlign: "center",
+          textVerticalAlign: "middle",
+        },
+      },
+    ],
+  };
   const chartOption = {
     grid: {
       left: "5%",
@@ -235,48 +298,71 @@ export const useBarProgress = () => {
       },
     ],
   };
-    const xBarOption = {
-      tooltip: {
-        trigger: "axis",
-        axisPointer: {
-          type: "shadow",
+  const xBarOption = {
+    tooltip: {
+      trigger: "axis",
+      axisPointer: {
+        type: "shadow",
+      },
+    },
+    legend: {
+      right: "45%",
+      top: "-2%",
+      textStyle: {
+        color: "#fff",
+        fontSize: 11,
+      },
+    },
+    grid: {
+      top: "10%",
+      left: "3%",
+      right: "4%",
+      bottom: "5%",
+      containLabel: true,
+    },
+    xAxis: {
+      type: "value",
+      axisTick: { show: true, length: 5 },
+      min: 0, // 最小值
+      max: 180, // 增大 X 轴的最大值，让它显示更多刻度
+      interval: 30,
+      splitLine: {
+        lineStyle: {
+          type: "dashed", // 虚线类型
+          color: "rgba(255,255,255,0.6)", // 可以自定义颜色
+          // width: 1      // 可以自定义宽度
         },
       },
-      legend: {},
-      grid: {
-        top: 0,
-        left: "3%",
-        right: "4%",
-        bottom: "3%",
-        containLabel: true,
-      },
-      xAxis: {
-        type: "value",
-        axisTick: { show: true, length: 5 },
-        min: 0, // 最小值
-        max: 180, // 增大 X 轴的最大值，让它显示更多刻度
-        interval: 30,
-        splitLine: {
-          show: false, // 隐藏网格线
+    },
+    yAxis: {
+      type: "category",
+      data: ["当前", "最低", "最高", "初始"],
+    },
+    series: [
+      {
+        name: "地热平衡",
+        type: "bar",
+        data: [30, 50, 120, 50, 73, 20, 35],
+        itemStyle: {
+          color: new echarts.graphic.LinearGradient(0.5, 0, 0, 0, [
+            { offset: 1, color: "#1baee1" },
+            { offset: 0, color: "#9b58db" },
+          ]),
         },
       },
-      yAxis: {
-        type: "category",
-        data: ["当前", "最低", "最高", "初始"],
-      },
-      series: [
-        {
-          type: "bar",
-          data: [130, 150, 50, 150, 200, 240, 350],
-          itemStyle: {
-            color: new echarts.graphic.LinearGradient(0.5, 0, 0, 0, [
-              { offset: 1, color: "#1baee1" },
-              { offset: 0, color: "#9b58db" },
-            ]),
-          },
+      {
+        name: "节能环保",
+        type: "bar",
+        data: [53, 110, 50, 17, 87, 74, 99],
+        itemStyle: {
+          color: new echarts.graphic.LinearGradient(0.5, 0, 0, 0, [
+            { offset: 1, color: "#1aaddd" },
+            { offset: 0, color: "#1bb58c" },
+          ]),
         },
-      ],
-    };
+      },
+    ],
+  };
   const yBarOptions = {
     tooltip: {
       trigger: "axis",
@@ -365,6 +451,7 @@ export const useBarProgress = () => {
     ],
   };
   return {
+    payBarOption,
     chartOption,
     xBarOption,
     yBarOptions,

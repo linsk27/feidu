@@ -5,8 +5,9 @@
             <div class="overview-box">
                 <div class="header">
                     <img src="/assets/imgs/titleImg.png" />
-                    <span class="title">舒适度数据统计</span>
+                    <span class="title">当代能效标识</span>
                 </div>
+                <div ref="payBarChartRef" class="h-[20px]"></div>
                 <div class="coverage-content">
                     <!-- 左侧环形进度 -->
                     <div class="circle-wrap">
@@ -31,7 +32,7 @@
                     <img src="/assets/imgs/titleImg.png" />
                     <span class="title">各类型费用占比</span>
                 </div>
-                <div ref="payChartRef" class="h-[180px] flex-1" />
+                <div ref="payChartRef" class="h-[150px] flex-1" />
                 <div class="header">
                     <img src="/assets/imgs/titleImg.png" />
                     <span class="title">能源分析</span>
@@ -43,10 +44,6 @@
         <div class="w-[36%]"></div>
         <!-- 右边 -->
         <div class="flex-1 flex-col">
-            <!-- 上面 -->
-            <div class="right-box">
-
-            </div>
             <div class="right-box-down">
                 <div class="header">
                     <img src="/assets/imgs/titleImg.png" />
@@ -65,22 +62,29 @@
                 <div ref="alarmChartRef" class="bar-chart" />
                 <div class="header">
                     <img src="/assets/imgs/titleImg.png" />
-                    <span class="title">机主运行情况</span>
+                    <span class="title">运行相关数据</span>
                 </div>
-                <div class="flex justify-center item-center">
-                    <div ref="stackedChartRef" class="h-[180px] flex-1" />
-                    <div class="flex flex-col text-center item-center justify-center">
-                        <div class="bg-[rgba(62,70,113,0.7)] pr-4 pl-4">
-                            <div class="text-center">1#冷战</div>
-                            <div class="text-[13px] text-center">1#主机</div>
+                <div class="table-container">
+                    <!-- 表头 -->
+                    <div class="table-header">
+                        <div class="table-cell">名称</div>
+                        <div class="table-cell">总电量</div>
+                        <div class="table-cell">总电费</div>
+                        <div class="table-cell">总负荷</div>
+                        <div class="table-cell">平均能耗</div>
+                    </div>
+
+                    <!-- 表格主体（滚动） -->
+                    <div class="table-body">
+                        <div class="table-row" v-for="(item, index) in tableData" :key="index">
+                            <div class="table-cell">{{ item.name }}</div>
+                            <div class="table-cell">{{ item.totalPower }}</div>
+                            <div class="table-cell">{{ item.totalCost }}</div>
+                            <div class="table-cell">{{ item.totalLoad }}</div>
+                            <div class="table-cell">{{ item.avgEnergy }}</div>
                         </div>
-                        <div class="text-center">开启状态</div>
-                        <div class="text-center w-10 mx-auto bg-[#0ac0a7]">启动</div>
-                        <div class="text-center">运行状态</div>
-                        <div class="text-center w-10  mx-auto bg-[#0ac0a7]">运行</div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -95,8 +99,20 @@ const { chartOption: CIMCircleOptions } = useAnallyCircle()
 const { payOption } = useAnallyCircle()
 const { chartOption: alarmChartOption } = useAlarmChart()
 const { chartOption: stackedChartOption } = useStackedChart()
-
+const tableData = ref([
+    { name: "天棚主机", totalPower: 13455.7, totalCost: 5620.3, totalLoad: 1.8, avgEnergy: 2.3 },
+    { name: "天棚主机", totalPower: 3422.7, totalCost: 5620.3, totalLoad: 1.8, avgEnergy: 2.3 },
+    { name: "天棚主机", totalPower: 10462.7, totalCost: 5620.3, totalLoad: 1.8, avgEnergy: 2.3 },
+    { name: "天棚水泵", totalPower: 2345.7, totalCost: 5230.3, totalLoad: 12.8, avgEnergy: 23.3 },
+    { name: "天棚主机", totalPower: 13455.7, totalCost: 5620.3, totalLoad: 1.8, avgEnergy: 2.3 },
+    { name: "天棚主机", totalPower: 3422.7, totalCost: 5620.3, totalLoad: 1.8, avgEnergy: 2.3 },
+    { name: "新风主机", totalPower: 3344.7, totalCost: 5620.3, totalLoad: 1.8, avgEnergy: 2.3 },
+    { name: "天棚水泵", totalPower: 2354.7, totalCost: 5620.3, totalLoad: 1.8, avgEnergy: 2.3 },
+    { name: "天棚主机", totalPower: 13455.7, totalCost: 5620.3, totalLoad: 1.8, avgEnergy: 2.3 },
+    { name: "天棚主机", totalPower: 3422.7, totalCost: 5620.3, totalLoad: 1.8, avgEnergy: 2.3 },
+]);
 const { yBarOptions: yBarOption } = useBarProgress()
+const { payBarOption: payBarOption } = useBarProgress()
 const { xBarOption: xBarOption } = useBarProgress()
 // 能源数据
 const energyData = ref([
@@ -136,8 +152,12 @@ const xBarChartRef = ref<HTMLElement>()
 const payChartRef = ref<HTMLElement>()
 const circleChartRef = ref<HTMLElement>()
 const barChartRef = ref<HTMLElement>()
+const payBarChartRef = ref<HTMLElement>()
+
+
 const alarmChartRef = ref<HTMLElement>()
 const stackedChartRef = ref<HTMLElement>()
+
 watch(circleChartRef, () => {
     if (circleChartRef) {
         // 初始化图表
@@ -218,6 +238,24 @@ watch(barChartRef, () => {
         };
     }
 })
+watch(payBarChartRef, () => {
+    if (payBarChartRef) {
+        // 初始化图表
+        const chart = echarts.init(payBarChartRef.value)
+        // 导入配置项
+        chart.setOption(payBarOption ?? {})
+        // 监听窗口变化，使图表重绘，使图表随窗口变化自动调整����。
+        const handleResize = () => chart.resize()
+        window.addEventListener('resize', handleResize)
+        // 注销监听
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            chart.dispose();
+        };
+    }
+})
+
+
 watch(alarmChartRef, () => {
     if (alarmChartRef.value) {
         const chart = echarts.init(alarmChartRef.value);
@@ -282,7 +320,7 @@ watch(stackedChartRef, () => {
 /* 上方概览盒子样式 */
 .overview-box {
     width: 75%;
-    overflow: hidden;
+    /* overflow: hidden; */
     background-color: rgba(0, 0, 0, 0.1);
     box-shadow: 4px 4px 30px rgba(0, 0, 0, 0.2);
     padding: 8px;
@@ -313,7 +351,8 @@ watch(stackedChartRef, () => {
     align-items: center;
     gap: 20px;
     padding: 0px 10px;
-    height: 100px;
+    width: 100%;
+    height: 110px;
 }
 
 /* 环形进度 */
@@ -375,5 +414,56 @@ watch(stackedChartRef, () => {
 .energy-value {
     color: #2cbbec;
     font-size: 30px;
+}
+
+
+/* 表格容器 */
+.table-container {
+  width: 100%;
+  max-height: 450px;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+/* 表头 */
+.table-header {
+  display: flex;
+  color: #329ce3;
+  font-weight: bold;
+}
+
+/* 滚动内容区域 */
+.table-body {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  scrollbar-color: rgba(83, 145, 253, 0.5) ;
+  max-height: 450px;
+}
+
+/* 滚动条样式 */
+.table-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.table-body::-webkit-scrollbar-thumb {
+  background: rgba(83, 145, 253, 0.5);
+}
+
+/* 表格行 */
+.table-row {
+  display: flex;
+}
+
+.table-row:nth-child(even) {
+  background: rgba(4, 146, 247, 0.2);
+}
+
+/* 表格单元格 */
+.table-cell {
+  flex: 1;
+  padding: 10px;
+  text-align: left;
 }
 </style>
