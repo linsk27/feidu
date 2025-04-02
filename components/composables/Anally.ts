@@ -1,3 +1,4 @@
+import * as echarts from "echarts";
 export const useAnallyCircle = () => {
   const chartOption = {
     series: [
@@ -234,6 +235,48 @@ export const useBarProgress = () => {
       },
     ],
   };
+    const xBarOption = {
+      tooltip: {
+        trigger: "axis",
+        axisPointer: {
+          type: "shadow",
+        },
+      },
+      legend: {},
+      grid: {
+        top: 0,
+        left: "3%",
+        right: "4%",
+        bottom: "3%",
+        containLabel: true,
+      },
+      xAxis: {
+        type: "value",
+        axisTick: { show: true, length: 5 },
+        min: 0, // 最小值
+        max: 180, // 增大 X 轴的最大值，让它显示更多刻度
+        interval: 30,
+        splitLine: {
+          show: false, // 隐藏网格线
+        },
+      },
+      yAxis: {
+        type: "category",
+        data: ["当前", "最低", "最高", "初始"],
+      },
+      series: [
+        {
+          type: "bar",
+          data: [130, 150, 50, 150, 200, 240, 350],
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0.5, 0, 0, 0, [
+              { offset: 1, color: "#1baee1" },
+              { offset: 0, color: "#9b58db" },
+            ]),
+          },
+        },
+      ],
+    };
   const yBarOptions = {
     tooltip: {
       trigger: "axis",
@@ -323,6 +366,7 @@ export const useBarProgress = () => {
   };
   return {
     chartOption,
+    xBarOption,
     yBarOptions,
   };
 };

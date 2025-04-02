@@ -35,7 +35,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const click = ref(3)
+const click = ref(2)
 </script>
 <style scoped>
 .main-box {

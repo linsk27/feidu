@@ -31,11 +31,12 @@
                     <img src="/assets/imgs/titleImg.png" />
                     <span class="title">各类型费用占比</span>
                 </div>
-                <div ref="payChartRef" class="h-[180px] flex-1"  />
+                <div ref="payChartRef" class="h-[180px] flex-1" />
                 <div class="header">
                     <img src="/assets/imgs/titleImg.png" />
                     <span class="title">能源分析</span>
                 </div>
+                <div ref="xBarChartRef" class="h-[180px] flex-1" />
             </div>
         </div>
         <!-- 中间防护空层 -->
@@ -96,6 +97,7 @@ const { chartOption: alarmChartOption } = useAlarmChart()
 const { chartOption: stackedChartOption } = useStackedChart()
 
 const { yBarOptions: yBarOption } = useBarProgress()
+const { xBarOption: xBarOption } = useBarProgress()
 // 能源数据
 const energyData = ref([
     {
@@ -130,6 +132,7 @@ const energyData = ref([
     }
 ])
 const yBarChartRef = ref<HTMLElement>()
+const xBarChartRef = ref<HTMLElement>()
 const payChartRef = ref<HTMLElement>()
 const circleChartRef = ref<HTMLElement>()
 const barChartRef = ref<HTMLElement>()
@@ -174,6 +177,22 @@ watch(payChartRef, () => {
         // 导入配置项
         chart.setOption(payOption ?? {})
         // 监听窗口变化，使图表重绘，使图表随窗口变化自动调整尺寸。
+        const handleResize = () => chart.resize()
+        window.addEventListener('resize', handleResize)
+        // 注销监听
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            chart.dispose();
+        };
+    }
+})
+watch(xBarChartRef, () => {
+    if (xBarChartRef) {
+        // 初始化图表
+        const chart = echarts.init(xBarChartRef.value)
+        // 导入配置项
+        chart.setOption(xBarOption ?? {})
+        // 监听窗口变化，使图表重绘，使图表随窗口变化自动调整����。
         const handleResize = () => chart.resize()
         window.addEventListener('resize', handleResize)
         // 注销监听
