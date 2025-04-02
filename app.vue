@@ -7,6 +7,7 @@
         <Security v-if="click===1"/>
         <CIMPlate v-if="click===2"/>
         <Energy v-if="click===3"/>
+        <Anally v-if="click===4"/>
       </div>
       <!-- 底部 -->
       <div class="type-button">

@@ -89,10 +89,8 @@ watch(xBarChartRef, () => {
     if (xBarChartRef.value) {
         const chart = echarts.init(xBarChartRef.value)
         chart.setOption(xBarOption)
-
         const handleResize = () => chart.resize()
         window.addEventListener('resize', handleResize)
-
         return () => {
             window.removeEventListener('resize', handleResize)
             chart.dispose()
@@ -103,10 +101,8 @@ watch(lineChartRef, () => {
     if (lineChartRef.value) {
         const chart = echarts.init(lineChartRef.value)
         chart.setOption(lineOption)
-
         const handleResize = () => chart.resize()
         window.addEventListener('resize', handleResize)
-
         return () => {
             window.removeEventListener('resize', handleResize)
             chart.dispose()
@@ -117,10 +113,8 @@ watch(yBarChartRef, () => {
     if (yBarChartRef.value) {
         const chart = echarts.init(yBarChartRef.value)
         chart.setOption(yBarOption)
-
         const handleResize = () => chart.resize()
         window.addEventListener('resize', handleResize)
-
         return () => {
             window.removeEventListener('resize', handleResize)
             chart.dispose()
@@ -157,6 +151,7 @@ watch(yBarChartRef, () => {
 /* 上方概览盒子样式 */
 .overview-box {
     width: 75%;
+    overflow: hidden;
     background-color: rgba(0, 0, 0, 0.1);
     box-shadow: 4px 4px 30px rgba(0, 0, 0, 0.2);
     padding: 8px;
@@ -164,7 +159,6 @@ watch(yBarChartRef, () => {
 
 .overview-content {
     display: flex;
-    flex: 1;
     flex-direction: column;
     gap: 10px 20px;
     padding-left: 10px;
@@ -180,6 +174,7 @@ watch(yBarChartRef, () => {
 .overview-item {
     display: flex;
     flex-direction: column;
+    width: auto;
 }
 
 .overview-item__label {
@@ -205,8 +200,8 @@ watch(yBarChartRef, () => {
     flex: 1;
     display: grid;
     font-size: 16px;
-    grid-template-columns: auto auto auto auto;
-    gap: 8px 0;
+    grid-template-columns: 120px 50px 120px 50px;
+    gap: 8px 8px;
 }
 
 .right-box {
