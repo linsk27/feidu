@@ -3,7 +3,10 @@
     <div class="main-box">
       <!-- 上部 -->
       <div class="content">
-        <Community></Community>
+        <Community v-if="click===0"/>
+        <Security v-if="click===1"/>
+        <CIMPlate v-if="click===2"/>
+        <Energy v-if="click===3"/>
       </div>
       <!-- 底部 -->
       <div class="type-button">
@@ -29,14 +32,17 @@
   </div>
 </template>
 <script setup lang="ts">
+import { ref } from 'vue'
+
 const click = ref(3)
 </script>
 <style scoped>
 .main-box {
   position: relative;
-  padding: 30px 10px;
+  padding: 10px 10px;
   width: 100%;
   height: 100%;
+  padding-bottom: 30px;
   background: radial-gradient(circle at center, transparent 1%, rgba(0, 0, 0, 0.9) 87%);
 }
 
@@ -62,7 +68,7 @@ const click = ref(3)
 .nav-button {
   border: 3px solid #4352b5;
   cursor: pointer;
-  background-color: rgba(51, 65, 85, 0.5);
+  background-color: rgba(23, 24, 26, 0.5);
   padding: 0.35rem 0.5rem;
 }
 

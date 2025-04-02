@@ -35,29 +35,7 @@
                 </div>
             </div>
             <!-- 下方 -->
-            <div class="alarm-box">
-                <div class="header">
-                    <img src="/assets/imgs/titleImg.png" />
-                    <span class="title">报警讯息列表</span>
-                </div>
-                <div class="alarm-content">
-                    <div v-for="item in alarmList" :key="item.id" class="alarm-item">
-                        <div class="alarm-item__left">
-                            <div class="alarm-item__top">
-                                <div class="alarm-item__location">{{ item.location }}</div>
-                                <div class="alarm-item__status" :class="{
-                                    'status-pending': item.status === '待派遣',
-                                    'status-processing': item.status === '处理中',
-                                    'status-resolved': item.status === '已消警'
-                                }">
-                                    {{ item.status }}
-                                </div>
-                            </div>
-                            <div class="alarm-item__time">{{ item.time }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <AlarmList />
         </div>
         <!-- 中间防护空层 -->
         <div class="w-[36%]"></div>
@@ -81,31 +59,85 @@
                     <img src="/assets/imgs/titleImg.png" />
                     <span class="title">超时访客数据</span>
                 </div>
+                <div class="sub-title">近一周访客超时统计分布</div>
+                <div ref="overtimeChartRef" class="chart-container" />
                 <div class="header">
                     <img src="/assets/imgs/titleImg.png" />
                     <span class="title">业主关怀</span>
                 </div>
+                <div ref="ownerChartRef" class="chart-container" />
                 <div class="header">
                     <img src="/assets/imgs/titleImg.png" />
                     <span class="title">报警数据</span>
                 </div>
+                <div ref="alarmChartRef" class="chart-container" />
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-const alarmList = ref([
-    { id: 1, location: '监控1: 大西1云台', time: '07:12:18', status: '待派遣' },
-    { id: 2, location: '监控2: A塔南侧', time: '07:13:12', status: '处理中' },
-    { id: 3, location: '监控3: T9北侧', time: '08:12:18', status: '已消警' },
-    { id: 4, location: '监控4: 大西1云台', time: '07:12:18', status: '待派遣' },
-    { id: 5, location: '监控5: A塔南侧', time: '07:13:12', status: '处理中' },
-    { id: 6, location: '监控6: T9北侧', time: '08:12:18', status: '已消警' },
-    { id: 7, location: '监控7: 大西1云台', time: '07:12:18', status: '待派遣' },
-    { id: 8, location: '监控8: A塔南侧', time: '07:13:12', status: '处理中' },
-    { id: 9, location: '监控9: T9北侧', time: '08:12:18', status: '已消警' }
-])
+import * as echarts from 'echarts';
+import { useOvertimeChart, useOwnerChart, useAlarmChart } from './composables/CommunityData';
+import AlarmList from './AlarmList.vue';
+
+const overtimeChartRef = ref<HTMLElement>();
+const { chartOption } = useOvertimeChart();
+
+const ownerChartRef = ref<HTMLElement>();
+const { chartOption: ownerChartOption } = useOwnerChart();
+
+const alarmChartRef = ref<HTMLElement>();
+const { chartOption: alarmChartOption } = useAlarmChart();
+
+// 使用 watchEffect 来初始化图表
+watch(overtimeChartRef,() => {
+    if (overtimeChartRef.value) {
+        const chart = echarts.init(overtimeChartRef.value);
+        chart.setOption(chartOption);
+
+        const handleResize = () => chart.resize();
+        window.addEventListener('resize', handleResize);
+
+        // 返回清理函数
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            chart.dispose();
+        };
+    }
+});
+
+// 监听业主图表
+watch(ownerChartRef,() => {
+    if (ownerChartRef.value) {
+        const chart = echarts.init(ownerChartRef.value);
+        chart.setOption(ownerChartOption);
+
+        const handleResize = () => chart.resize();
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            chart.dispose();
+        };
+    }
+});
+
+// 监听报警图表
+watch(alarmChartRef,() => {
+    if (alarmChartRef.value) {
+        const chart = echarts.init(alarmChartRef.value);
+        chart.setOption(alarmChartOption);
+
+        const handleResize = () => chart.resize();
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            chart.dispose();
+        };
+    }
+});
 </script>
 
 <style scoped>
@@ -124,6 +156,7 @@ const alarmList = ref([
     color: transparent;
     font-size: 18px;
 }
+
 .flex-1 {
     flex: 1;
     display: flex;
@@ -277,7 +310,7 @@ const alarmList = ref([
     width: 75%;
     background-color: rgba(0, 0, 0, 0.1);
     box-shadow: 4px 4px 30px rgba(0, 0, 0, 0.2);
-    padding: 8px;
+    padding: 2px;
 }
 
 
@@ -286,7 +319,7 @@ const alarmList = ref([
     align-items: center;
     justify-content: space-around;
     gap: 20px;
-    padding: 15px 25px;
+    padding: 15px 20px;
 }
 
 
@@ -315,7 +348,9 @@ const alarmList = ref([
     padding: 8px;
     display: flex;
     flex-direction: column;
+    justify-content: space-around;
     flex: 1;
+    flex-grow: 1;
     min-height: 0;
 }
 
@@ -324,5 +359,18 @@ const alarmList = ref([
     align-items: center;
     gap: 20px;
     margin-bottom: 10px;
+}
+
+.chart-container {
+    flex-grow:1;
+    flex:1;
+    width: 100%;
+}
+
+.sub-title {
+    color: #4c81dd;
+    font-size: 12px;
+    margin-left: 48px;
+    margin-top: -5px;
 }
 </style>
