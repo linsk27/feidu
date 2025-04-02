@@ -6,60 +6,33 @@
             <div class="overview-box">
                 <div class="header">
                     <img src="/assets/imgs/titleImg.png" />
-                    <span class="title">摄像头概述总览</span>
+                    <span class="title">4#天棚热泵主机</span>
                 </div>
-                <div class="overview-content">
+                <div class="overview-content" v-for=" in 4">
                     <!-- 第一行：总数量 -->
                     <div class="total-camera">
-                        <img src="/assets/imgs/title.png" alt="total" />
+                        <img src="/assets/imgs/gl.png" alt="total" />
                         <div class="overview-item">
-                            <div class="overview-item__label">摄像头总数量</div>
-                            <div class="overview-item__value">53</div>
+                            <div class="overview-item__label">功率</div>
+                            <div class="overview-item__value">211.8</div>
+                        </div>
+                        <img src="/assets/imgs/dl.png" alt="total" />
+                        <div class="overview-item">
+                            <div class="overview-item__label">电量</div>
+                            <div class="overview-item__value">272322.2</div>
                         </div>
                     </div>
-                    <!-- 第二行：详细分类 -->
-                    <div class="camera-types">
-                        <div class="type-item" v-for="item in cameraTypes" :key="item.id">
-                            <div class="type-label">
-                                <img src="/assets/imgs/yz.png" :alt="item.label" />
-                                <span>{{ item.label }}</span>
-                            </div>
-                            <div class="type-value">{{ item.value }}</div>
-                        </div>
+                    <div class="energy-status">
+                        <div>机组运行工况</div>
+                        <div class="bg-[#e19f40] w-12 mr-auto flex items-center text-[14px] pl-2 pr-2">制热</div>
+                        <div>机组运行工况</div>
+                        <div class="bg-[#00d5b8] w-12 mr-auto flex items-center text-[14px] pl-2 pr-2">运行</div>
+                        <div>C1启动状态</div>
+                        <div class="bg-[#00d5b8] w-12 mr-auto flex items-center text-[14px] pl-2 pr-2">启动</div>
+                        <div>C2启动状态</div>
+                        <div class="bg-[#00d5b8] w-12 mr-auto flex items-center text-[14px] pl-2 pr-2">启动</div>
                     </div>
                 </div>
-            </div>
-            <!-- 中间 -->
-            <div class="coverage-box">
-                <div class="header">
-                    <img src="/assets/imgs/titleImg.png" />
-                    <span class="title">摄像头覆盖占比</span>
-                </div>
-                <!-- 添加覆盖区域显示标题和开关 -->
-                <div class="area-display">
-                    <span class="area-title">覆盖区域显示</span>
-                    <div class="switch" @click="toggleSwitch">
-                        <div class="switch-track" :class="{ 'switch-track-active': showArea }">
-                            <div class="switch-thumb" :class="{ 'switch-thumb-active': showArea }"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="coverage-content">
-                    <!-- 左侧环形进度 -->
-                    <div class="circle-wrap">
-                        <div ref="circleChartRef" class="circle-chart"></div>
-                        <div class="circle-text">
-                            <span class="label">覆盖区域</span>
-                            <span class="value">80%</span>
-                        </div>
-                    </div>
-                    <!-- 右侧进度条 -->
-                    <div ref="barChartRef" class="bar-chart"></div>
-                </div>
-            </div>
-            <!-- 下方 -->
-            <div class="alarm-list-container">
-                <AlarmList />
             </div>
         </div>
         <!-- 中间防护空层 -->
@@ -67,16 +40,30 @@
         <!-- 右边 -->
         <div class="flex-1 flex-col">
             <div class="right-box">
+                <!-- 下拉框组件 -->
+                <select v-model="selectedValue" class="w-full p-[10px] border-2 border-[#4050c7] text-white">
+                    <option class=" text-white" value="" disabled>请选择</option>
+                    <option v-for="option in options" :key="option.value" :value="option.value" class="text-black">
+                        {{ option.label }}
+                    </option>
+                </select>
+            </div>
+            <div class="right-box">
                 <div class="header">
                     <img src="/assets/imgs/titleImg.png" />
-                    <span class="title">摄像头概述总览</span>
+                    <span class="title">三相电压</span>
                 </div>
-                <div class="video-box">
-                    <div v-for="item in cameraVideo" class="video-item">
-                        <img src="/assets/imgs/jk.png">
-                        <div>{{ item.label }}</div>
-                    </div>
+                <div ref="xBarChartRef" class="h-[180px] w-full"></div>
+                <div class="header">
+                    <img src="/assets/imgs/titleImg.png" />
+                    <span class="title">三相电流</span>
                 </div>
+                <div ref="lineChartRef" class="h-[180px] w-full"></div>
+                <div class="header">
+                    <img src="/assets/imgs/titleImg.png" />
+                    <span class="title">超时访客数据</span>
+                </div>
+                <div ref="yBarChartRef" class="h-[180px] w-full"></div>
             </div>
         </div>
     </div>
@@ -84,76 +71,52 @@
 
 <script setup lang="ts">
 import * as echarts from 'echarts'
-import { useCircleProgress, useBarProgress } from './composables/Security'
-
-// 摄像头类型数据
-const cameraTypes = ref([
-    {
-        id: 1,
-        label: '人脸识别摄像头',
-        value: 8,
-        icon: '/assets/imgs/yz.png'
-    },
-    {
-        id: 2,
-        label: '可控制摄像头',
-        value: 20,
-        icon: '/assets/imgs/yz.png'
-    },
-    {
-        id: 3,
-        label: '故障摄像头',
-        value: 2,
-        icon: '/assets/imgs/yz.png'
-    }
+import { useEnergyProgress } from './composables/EnergyData'
+const selectedValue = ref('') // 用于存储选中的值
+const options = ref([         // 下拉框选项数据
+    { value: '1', label: '选项1' },
+    { value: '2', label: '选项2' },
+    { value: '3', label: '选项3' }
 ])
 
-// 摄像头概述数据
-const cameraVideo = ref([
-    {
-        id: 1,
-        label: '人脸识别摄像头',
-    },
-    {
-        id: 2,
-        label: '人脸识别摄像头',
-    },
-    {
-        id: 3,
-        label: '可控制摄像头',
-    },
-    {
-        id: 4,
-        label: '故障摄像头',
-    },
-    {
-        id: 5,
-        label: '故障摄像头',
-    },
-    {
-        id: 6,
-        label: '故障摄像头',
-    },
-    {
-        id: 7,
-        label: '故障摄像头',
-    },
-    {
-        id: 8,
-        label: '故障摄像头',
-    }
-])
-// 图表实例
-const circleChartRef = ref<HTMLElement>()
-const barChartRef = ref<HTMLElement>()
-const { chartOption: circleChartOption } = useCircleProgress()
-const { chartOption: barChartOption } = useBarProgress()
+const xBarChartRef = ref<HTMLElement>()
+const lineChartRef = ref<HTMLElement>()
+const yBarChartRef = ref<HTMLElement>()
+const { xBarOption: xBarOption } = useEnergyProgress()
+const { lineOptions: lineOption } = useEnergyProgress()
+const { yBarOptions: yBarOption } = useEnergyProgress()
+watch(xBarChartRef, () => {
+    if (xBarChartRef.value) {
+        const chart = echarts.init(xBarChartRef.value)
+        chart.setOption(xBarOption)
 
-// 监听环形图表
-watch(circleChartRef,() => {
-    if (circleChartRef.value) {
-        const chart = echarts.init(circleChartRef.value)
-        chart.setOption(circleChartOption)
+        const handleResize = () => chart.resize()
+        window.addEventListener('resize', handleResize)
+
+        return () => {
+            window.removeEventListener('resize', handleResize)
+            chart.dispose()
+        }
+    }
+})
+watch(lineChartRef, () => {
+    if (lineChartRef.value) {
+        const chart = echarts.init(lineChartRef.value)
+        chart.setOption(lineOption)
+
+        const handleResize = () => chart.resize()
+        window.addEventListener('resize', handleResize)
+
+        return () => {
+            window.removeEventListener('resize', handleResize)
+            chart.dispose()
+        }
+    }
+})
+watch(yBarChartRef, () => {
+    if (yBarChartRef.value) {
+        const chart = echarts.init(yBarChartRef.value)
+        chart.setOption(yBarOption)
 
         const handleResize = () => chart.resize()
         window.addEventListener('resize', handleResize)
@@ -165,26 +128,6 @@ watch(circleChartRef,() => {
     }
 })
 
-// 监听进度条图表
-watch(barChartRef,() => {
-    if (barChartRef.value) {
-        const chart = echarts.init(barChartRef.value)
-        chart.setOption(barChartOption)
-
-        const handleResize = () => chart.resize()
-        window.addEventListener('resize', handleResize)
-
-        return () => {
-            window.removeEventListener('resize', handleResize)
-            chart.dispose()
-        }
-    }
-})
-
-const showArea = ref(true)
-const toggleSwitch = () => {
-    showArea.value = !showArea.value
-}
 </script>
 
 <style scoped>
@@ -221,42 +164,34 @@ const toggleSwitch = () => {
 
 .overview-content {
     display: flex;
+    flex: 1;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px 20px;
     padding-left: 10px;
+    margin-bottom: 20px;
 }
 
 .total-camera {
     display: flex;
+    gap: 20px;
     align-items: center;
-    gap: 15px;
 }
 
 .overview-item {
     display: flex;
     flex-direction: column;
-    align-items: center;
 }
 
 .overview-item__label {
-    font-size: 12px;
+    font-size: 14px;
     background: linear-gradient(90deg, #5391fd 0%, #5384c7 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
 }
 
-.label-box {
-    padding: 2px 15px;
-    background-image: linear-gradient(90deg, #107ea5 0%, #4e4b9e 100%);
-}
-
 .overview-item__value {
     font-size: 30px;
-    background: linear-gradient(90deg, #9dceff 0%, #9dceeb 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
 }
 
 .header {
@@ -266,174 +201,20 @@ const toggleSwitch = () => {
     margin-bottom: 10px;
 }
 
-.camera-types {
-    display: flex;
-    justify-content: space-around;
-    gap: 10px;
-}
-
-.type-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.type-label {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    font-size: 12px;
-    padding: 2px 8px;
-    background-image: linear-gradient(90deg, #107ea5 0%, #4e4b9e 100%);
-}
-
-.type-label img {
-    width: 11px;
-    height: 11px;
-}
-
-.type-value {
-    color: #96c9fc;
-}
-
-/* 覆盖率展示区域 */
-.coverage-box {
-    position: relative;
-    width: 75%;
-    margin-top: 20px;
-    background-color: rgba(0, 0, 0, 0.1);
-    box-shadow: 4px 4px 30px rgba(0, 0, 0, 0.2);
-    padding: 8px;
-}
-
-.coverage-content {
-    display: flex;
-    align-items: center;
-    gap: 30px;
-    padding: 20px 10px;
-    height: 160px;
-}
-
-/* 环形进度 */
-.circle-wrap {
-    width: 120px;
-    height: 120px;
-    position: relative;
-}
-
-.circle-chart {
-    width: 100%;
-    height: 100%;
-}
-
-.circle-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 1;
-}
-
-.circle-text .label {
-    color: #96c9fc;
-    font-size: 12px;
-}
-
-.circle-text .value {
-    color: #00ffcc;
-    font-size: 20px;
-    font-weight: bold;
-}
-
-/* 进度条图表 */
-.bar-chart {
+.energy-status {
     flex: 1;
-    height: 100%;
-}
-
-/* 覆盖区域显示样式 */
-.area-display {
-    z-index: 10;
-    position: absolute;
-    display: flex;
-    align-items: center;
-    left: 45%;
-    top: 30%;
-}
-
-.area-title {
-    color: #fff;
-    font-size: 14px;
-    margin-right: 10px;
-}
-
-/* 原生开关样式 */
-.switch {
-    cursor: pointer;
-    user-select: none;
-}
-
-.switch-track {
-    width: 40px;
-    height: 20px;
-    background-color: #32375f;
-    border-radius: 10px;
-    position: relative;
-    transition: background-color 0.3s;
-}
-
-.switch-track-active {
-    background-color: #12928a;
-}
-
-.switch-thumb {
-    width: 16px;
-    height: 16px;
-    background-color: #fff;
-    border-radius: 50%;
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    transition: transform 0.3s;
-}
-
-.switch-thumb-active {
-    transform: translateX(20px);
-}
-
-/* 报警列表容器样式 */
-.alarm-list-container {
-    width: 100%;
-    margin-top: 10px;
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-.right-box{
-    width: 75%;
-    background-color: rgba(0, 0, 0, 0.1);
-    box-shadow: 4px 4px 30px rgba(0, 0, 0, 0.2);
-    padding: 8px;
-    margin-left: auto;
-}
-
-.video-box {
     display: grid;
-    flex:1;
-    grid-template-columns: repeat(2, 1fr);
-    gap:5px 10px;
-    padding: 0 25px;
+    font-size: 16px;
+    grid-template-columns: auto auto auto auto;
+    gap: 8px 0;
 }
-.video-item{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+
+.right-box {
+    width: 75%;
+    background-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 4px 4px 30px rgba(0, 0, 0, 0.2);
+    padding: 8px;
+    margin-bottom: 8px;
+    margin-left: auto;
 }
 </style>
