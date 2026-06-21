@@ -3,7 +3,7 @@
 Nuxt 3、Vue、Tailwind CSS 和 ECharts 智慧社区数据大屏，展示社区管理、安防监控、CIM 平台、能源检测和节能分析等可视化界面。
 
 - 线上演示：https://feidu-murex.vercel.app
-- 项目介绍：https://linsk27-github-io.vercel.app/projects/feidu/
+- 项目介绍：https://linsk27.github.io/projects/feidu/
 - 作者主页：https://github.com/linsk27
 
 ![feidu smart community dashboard](./docs/feidu-smart-community-dashboard.jpg)
